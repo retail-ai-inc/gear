@@ -41,6 +41,8 @@ Issues = "https://github.com/retail-ai-inc/aigear/issues"
 common = [
     "tabulate >= 0.9",
     "cloudpickle >= 2.0.0",
+    "astor >= 0.8.1",
+    "sqlalchemy >= 1.1.13"
 ]
 docker = [
     "docker >= 6.13",

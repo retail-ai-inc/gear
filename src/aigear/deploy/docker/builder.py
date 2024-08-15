@@ -55,12 +55,12 @@ class ImageBuilder:
 
     @staticmethod
     def get_image_id(tag: str):
-        try:
-            with docker_client() as client:
+        with docker_client() as client:
+            try:
                 image = client.images.get(tag)
-            return image.id
-        except ImageNotFound:
-            logger.info('Image not found.')
+                return image.id
+            except ImageNotFound:
+                logger.info(f'Image not found: {tag}.')
 
 
 def build_image(
@@ -202,15 +202,21 @@ def default_dockerfile(
         package_source = " -i " + package_source
 
     lines.append(f"COPY requirements.txt {workdir}/requirements.txt")
+    lines.append(
+        ""
+    )
     lines.append(f"RUN python -m pip install --upgrade pip{package_source}")
     lines.append(
         f"RUN python -m pip install -r {workdir}/requirements.txt{package_source}"
     )
     lines.append(
-        f"""
-        ENV PYTHONDONTWRITEBYTECODE=1 \
-        PYTHONBUFFERED=1
-        """
+        ""
+    )
+    lines.append(
+        "ENV PYTHONDONTWRITEBYTECODE=1"
+    )
+    lines.append(
+        "ENV PYTHONBUFFERED=1"
     )
 
     with Path("Dockerfile").open("w") as f:

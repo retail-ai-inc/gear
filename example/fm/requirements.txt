@@ -1,3 +1,4 @@
-dask>=2024.7.0
-rankfm>=0.2.5
-scikit-learn>=1.5.0
+dask>=2022.10.1
+scikit-learn>=1.2.0
+git+https://github.com/ErraticO/rankfm.git
+haversine >= 2.0.0

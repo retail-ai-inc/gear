@@ -13,7 +13,6 @@ from ..common import (
     state,
 )
 from ..common.callable import get_call_parameters
-from ..common.hashing import file_hash, stable_hash
 from .executor import TaskRunner
 from ..deploy.docker.builder import ImageBuilder
 from ..deploy.docker.container import run_or_restart_container
@@ -61,18 +60,22 @@ class WorkFlow:
             image_id = image_builder.get_image_id(tag=self.name)
         else:
             image_id = image_builder.build(tag=self.name)
-        flow_path = flow_path_in_workdir(self._flow_file)
-        command = f"aigear-workflow --script_path {flow_path} --function_name {self.fn.__name__}"
-        run_or_restart_container(
-            container_name=self.name,
-            image_id=image_id,
-            command=command,
-            volumes=volumes,
-            ports=ports,
-            hostname=hostname,
-            is_stream_logs=is_stream_logs,
-            **kwargs
-        )
+            
+        if image_id:
+            flow_path = flow_path_in_workdir(self._flow_file)
+            command = f"aigear-workflow --script_path {flow_path} --function_name {self.fn.__name__}"
+            run_or_restart_container(
+                container_name=self.name,
+                image_id=image_id,
+                command=command,
+                volumes=volumes,
+                ports=ports,
+                hostname=hostname,
+                is_stream_logs=is_stream_logs,
+                **kwargs
+            )
+        else:
+            logger.info('You skipped building the image, so image not found.')
         return self
 
     def to_service(

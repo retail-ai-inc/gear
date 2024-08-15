@@ -369,7 +369,7 @@ def fm_pipeline():
 
 
 if __name__ == '__main__':
-    # import os
+    import os
     # my_pipeline()
     fm_pipeline.run_in_executor()
 
@@ -388,9 +388,10 @@ if __name__ == '__main__':
     #
     # fm_pipeline.deploy(
     #     volumes=volumes,
-    #     skip_build_image=True,
+    #     skip_build_image=False,
     #     cpu_count=cpu_count_train,
     #     mem_limit=mem_limit_train
+    # )
     # ).to_service(
     #     hostname=hostname,
     #     ports=ports,
