@@ -85,11 +85,12 @@ if __name__ == '__main__':
         skip_build_image=True,
         cpu_count=cpu_count_train,
         mem_limit=mem_limit_train
-    ).to_service(
-        hostname=hostname,
-        ports=ports,
-        volumes=volumes,
-        tag=service_dir,
-        cpu_count=cpu_count_service,
-        mem_limit=mem_limit_service
     )
+    # ).to_service(
+    #     hostname=hostname,
+    #     ports=ports,
+    #     volumes=volumes,
+    #     tag=service_dir,
+    #     cpu_count=cpu_count_service,
+    #     mem_limit=mem_limit_service
+    # )
