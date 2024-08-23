@@ -53,6 +53,11 @@ msgrpc = [
     "grpcio-health-checking >= 1.56.0",
     "sentry-sdk >= 1.29.2",
 ]
+gcp = [
+    "google-cloud-compute",
+    "google-cloud-pubsub",
+    "google-cloud-functions",
+]
 
 [project.scripts]
 aigear-msgrpc = "aigear.microservices.grpc.service:main"

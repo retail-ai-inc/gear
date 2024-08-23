@@ -1,6 +1,7 @@
 import subprocess
 from ..docker.client import docker_client, ImageNotFound
 from ...common.logger import logger
+from ...common.sh import run_sh
 
 
 class ArtifactRegistry:
@@ -19,7 +20,7 @@ class ArtifactRegistry:
             f"--location={location}",
             f"--description={description}"
         ]
-        self.run_sh(
+        self._run_sh(
             command=command,
         )
     
@@ -32,7 +33,7 @@ class ArtifactRegistry:
             "gcloud", "artifacts", "repositories", "describe", repository,
             f"--location={location}",
         ]
-        self.run_sh(
+        self._run_sh(
             command=command,
         )
     
@@ -40,24 +41,17 @@ class ArtifactRegistry:
         self,
         location,
     ):
-        self.run_sh(
+        self._run_sh(
             command=["gcloud", "auth", "configure-docker", f"{location}-docker.pkg.dev"],
             inputs="yes\n",
         )
     
-    def run_sh(
+    def _run_sh(
         self,
         command: list,
         inputs: str = None,
     ):
-        result = subprocess.run(
-            command,
-            input=inputs,
-            text=True,
-            capture_output=True,
-            shell=True,
-        )
-        event = result.stderr
+        event = run_sh(command, inputs)
         if "ALREADY_EXISTS" in event:
             logger.info("The repository already exists.")
         elif "NOT_FOUND" in event:

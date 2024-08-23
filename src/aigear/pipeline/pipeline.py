@@ -64,6 +64,7 @@ class WorkFlow:
         if image_id:
             flow_path = flow_path_in_workdir(self._flow_file)
             command = f"aigear-workflow --script_path {flow_path} --function_name {self.fn.__name__}"
+            # TODO: Next optimization, the container name should include the version(self.version)
             run_or_restart_container(
                 container_name=self.name,
                 image_id=image_id,
