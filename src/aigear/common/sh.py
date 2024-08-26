@@ -12,5 +12,8 @@ def run_sh(
         capture_output=True,
         shell=True,
     )
-    event = result.stderr
-    return event
+    stderr = result.stderr
+    if stderr:
+        return stderr
+    else:
+        return result.stdout
