@@ -1,63 +1,83 @@
-from google.cloud import functions_v2
+from pathlib import Path
+from ...common.logger import logger
+from ...common.sh import run_sh
 
 
-def get_function_request(configuration, function_name, topic_path):
-    deployment_settings = configuration.get("deployment_settings", {})
-    env_vars = configuration.get("env_vars", {})
-    project_id = env_vars.get("GCP_PROJECT_ID")
+class CloudFunction:
+    def __init__(
+        self,
+        function_name,
+        region,
+        entry_point,
+        topic_name,
+    ):
+        self.function_name = function_name
+        self.region = region
+        self.entry_point = entry_point
+        self.topic_name = topic_name
+        self.source_path = Path(__file__).resolve().parent / "function"
     
-    print(f"Deployment Settings:\n{deployment_settings}")
-    print(f"Env vars:\n{env_vars}")
-    region = deployment_settings.get("region", "us-central1")
-    parent = f"projects/{project_id}/locations/{region}"
-    function_id = function_name.lower()
-    bucket_name = deployment_settings.get("bucket_name")
-    source_code_path = deployment_settings.get("source_code_path")
+    def deploy(self):
+        command = [
+            "gcloud", "functions", "deploy",
+            self.function_name,
+            "--gen2",
+            "--runtime=nodejs20",
+            "--allow-unauthenticated",
+            f"--region={self.region}",
+            f"--entry-point={self.entry_point}",
+            f"--trigger-topic={self.topic_name}",
+            f"--source={self.source_path}",
+        ]
+        event = run_sh(command)
+        logger.info(event)
+        if "ERROR" in event:
+            logger.info("Error occurred while creating cloud function.")
     
-    project_id = 'ssc-ape-staging'
-    topic = 'aigear-test'
-    topic_path = f'projects/{project_id}/topics/{topic}'
+    def logs(self, limit=5):
+        command = [
+            "gcloud", "functions", "logs", "read",
+            "--gen2",
+            f"--region={self.region}",
+            f"--limit={limit}",
+            self.function_name,
+        ]
+        event = run_sh(command)
+        logger.info(event)
     
-    storage_source = functions_v2.types.StorageSource(
-        bucket=bucket_name,
-        object_=source_code_path
-    )
+    def describe(self):
+        is_exist = False
+        command = [
+            "gcloud", "functions", "describe",
+            self.function_name,
+            f"--region={self.region}",
+        ]
+        event = run_sh(command)
+        if "ACTIVE" in event:
+            is_exist = True
+            logger.info(f"Find resources: {event}")
+        elif "ERROR" in event and "not found" in event:
+            logger.info(f"NOT_FOUND: Resource not found: {event}")
+        else:
+            logger.info(event)
+        return is_exist
     
-    source = functions_v2.types.Source(
-        storage_source=storage_source
-    )
+    def list(self):
+        command = [
+            "gcloud", "functions", "list",
+            f"--regions={self.region}",
+            "--v2",
+            f"--filter={self.function_name}",
+        ]
+        event = run_sh(command)
+        logger.info(f"\n{event}")
     
-    build_config = functions_v2.types.BuildConfig(
-        entry_point="main",
-        runtime="python38",
-        source=source
-    )
-    event_trigger = functions_v2.types.EventTrigger(
-        event_type="google.cloud.pubsub.topic.v1.messagePublished",
-        pubsub_topic=topic_path,
-        retry_policy=functions_v2.types.EventTrigger.RetryPolicy.RETRY_POLICY_RETRY
-    )
-    service_config = functions_v2.types.ServiceConfig(
-        vpc_connector=deployment_settings.get("vpc_connector"),
-        service_account_email=deployment_settings.get("service_account"),
-        environment_variables=env_vars,
-        available_cpu=deployment_settings.get("cpu", "1"),
-        min_instance_count=deployment_settings.get("min_instances", 0),
-        max_instance_count=deployment_settings.get("max_instances", 2),
-        max_instance_request_concurrency=deployment_settings.get("concurrency", 4),
-        timeout_seconds=120
-    )
-    # Define the function
-    function = functions_v2.types.Function(
-        name=f"{parent}/functions/{function_id}",
-        description="A serverless dispatcher",
-        build_config=build_config,
-        event_trigger=event_trigger,
-        service_config=service_config
-    )
-    request = functions_v2.CreateFunctionRequest(
-        parent=parent,
-        function=function,
-        function_id=function_id
-    )
-    return request
+    def delete(self):
+        command = [
+            "gcloud", "functions", "delete",
+            self.function_name,
+            "--gen2",
+            f"--region={self.region}",
+        ]
+        event = run_sh(command, "yes\n")
+        logger.info(f"\n{event}")
