@@ -1,4 +1,3 @@
-import subprocess
 from ..docker.client import docker_client, ImageNotFound
 from ...common.logger import logger
 from ...common.sh import run_sh

@@ -15,7 +15,7 @@ class CloudFunction:
         self.region = region
         self.entry_point = entry_point
         self.topic_name = topic_name
-        self.source_path = Path(__file__).resolve().parent / "function"
+        self.source_path = Path(__file__).resolve().parent / "function_test"
     
     def deploy(self):
         command = [
@@ -23,7 +23,6 @@ class CloudFunction:
             self.function_name,
             "--gen2",
             "--runtime=nodejs20",
-            "--allow-unauthenticated",
             f"--region={self.region}",
             f"--entry-point={self.entry_point}",
             f"--trigger-topic={self.topic_name}",
