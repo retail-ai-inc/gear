@@ -23,7 +23,27 @@ class Infra:
             _entry_point,
             topic_name,
         )
-        self._check = self._check_infra(self.pub, self.sub, self.cf)
+    
+    def create(self):
+        pub_exist, sub_exist, cf_exist = self._check_infra(self.pub, self.sub, self.cf)
+        if not pub_exist:
+            self.pub.create()
+        
+        if not sub_exist:
+            self.sub.create()
+        
+        if not cf_exist:
+            self.cf.deploy()
+    
+    def clear(self):
+        project_id = get_project_id()
+        owner_pm = check_iam(project_id)
+        if owner_pm:
+            self.pub.delete()
+            self.sub.delete()
+            self.cf.delete()
+        else:
+            logger.info("You are not the owner and cannot delete aigear infrastructure.")
     
     @staticmethod
     def _check_infra(pub, sub, cf):
@@ -37,24 +57,3 @@ class Infra:
         if not cf_exist:
             logger.info("Cloud function not created.")
         return pub_exist, sub_exist, cf_exist
-    
-    def create(self):
-        pub_exist, sub_exist, cf_exist = self._check
-        if not pub_exist:
-            self.pub.create()
-        
-        if not sub_exist:
-            self.sub.create()
-        
-        if not cf_exist:
-            self.cf.deploy()
-            
-    def delete(self):
-        project_id = get_project_id()
-        owner_pm = check_iam(project_id)
-        if owner_pm:
-            self.pub.delete()
-            self.sub.delete()
-            self.cf.delete()
-        else:
-            logger.info("You are not the owner and cannot delete aigear infrastructure.")

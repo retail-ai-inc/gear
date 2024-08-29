@@ -70,7 +70,7 @@ class ToGCPImage(ArtifactRegistry):
         project_id: str,
         location: str,
         repository: str,
-        description: str,
+        description: str = "",
     ):
         super().__init__()
         self.project_id = project_id
