@@ -21,20 +21,24 @@ class Scheduler:
         self.time_zone = time_zone
     
     def create(self):
-        message_body = json.dumps(self.message)
-        command = [
-            "gcloud", "scheduler", "jobs", "create", "pubsub",
-            self.name,
-            "--location", self.location,
-            "--schedule", self.schedule,
-            "--topic", self.topic_name,
-            "--message-body", message_body,
-            "--time-zone", self.time_zone,
-        ]
-        event = run_sh(command)
-        logger.info(event)
-        if "ERROR" in event:
-            logger.info("Error occurred while creating cloud function.")
+        is_exist = self.describe()
+        if not is_exist:
+            message_body = json.dumps(self.message)
+            command = [
+                "gcloud", "scheduler", "jobs", "create", "pubsub",
+                self.name,
+                "--location", self.location,
+                "--schedule", self.schedule,
+                "--topic", self.topic_name,
+                "--message-body", message_body,
+                "--time-zone", self.time_zone,
+            ]
+            event = run_sh(command)
+            logger.info(event)
+            if "ERROR" in event:
+                logger.info("Error occurred while creating cloud function.")
+        else:
+            logger.info(f"the cloud scheduler(self.name) already exists.")
     
     def delete(self):
         command = [
