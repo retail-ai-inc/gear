@@ -15,4 +15,4 @@ dockerfile_content = Template(dockerfile_template).safe_substitute(template_para
 with open('Dockerfile', 'w') as f:
     f.write(dockerfile_content)
 
-print("Dockerfile 创建完成。")
+print("Dockerfile creation completed.")

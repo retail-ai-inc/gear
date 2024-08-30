@@ -41,6 +41,8 @@ Issues = "https://github.com/retail-ai-inc/aigear/issues"
 common = [
     "tabulate >= 0.9",
     "cloudpickle >= 2.0.0",
+    "astor >= 0.8.1",
+    "sqlalchemy >= 1.1.13"
 ]
 docker = [
     "docker >= 6.13",
@@ -50,6 +52,11 @@ msgrpc = [
     "protobuf >= 4.23.3",
     "grpcio-health-checking >= 1.56.0",
     "sentry-sdk >= 1.29.2",
+]
+gcp = [
+    "google-cloud-compute",
+    "google-cloud-pubsub",
+    "google-cloud-functions",
 ]
 
 [project.scripts]

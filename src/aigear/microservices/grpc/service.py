@@ -84,7 +84,7 @@ def get_env_variables(tag: str):
 def check_env_variables(env_variables: dict):
     run_or_not = True
     for env_variable_name in env_variables:
-        if env_variables[env_variable_name] == None:
+        if env_variables[env_variable_name] is None:
             logger.error(
                 f"{env_variable_name} not found in the env variables!")
             run_or_not = False

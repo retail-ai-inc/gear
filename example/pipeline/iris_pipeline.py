@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from aigear.pipeline import workflow, task
+from pathlib import Path
 import pickle
 import json
 import os
@@ -44,7 +45,9 @@ def get_env_variables():
 
 @task
 def save_model(model, model_path):
-    with open(model_path, "wb") as md:
+    path = Path(model_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open('wb') as md:
         pickle.dump(model, md)
 
 
@@ -82,11 +85,12 @@ if __name__ == '__main__':
         skip_build_image=True,
         cpu_count=cpu_count_train,
         mem_limit=mem_limit_train
-    ).to_service(
-        hostname=hostname,
-        ports=ports,
-        volumes=volumes,
-        tag=service_dir,
-        cpu_count=cpu_count_service,
-        mem_limit=mem_limit_service
     )
+    # ).to_service(
+    #     hostname=hostname,
+    #     ports=ports,
+    #     volumes=volumes,
+    #     tag=service_dir,
+    #     cpu_count=cpu_count_service,
+    #     mem_limit=mem_limit_service
+    # )
